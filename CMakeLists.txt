@@ -14,7 +14,6 @@ if(CONFIG_LIBOQS_ENABLED)
     message(STATUS "liboqs: Enabled for ${IDF_TARGET}")
 
     # Architecture translation for ESP32 variants
-    # Based on /home/esp/work/projects/liboqs/zephyr/CMakeLists.txt lines 7-30
     if(CONFIG_IDF_TARGET_ARCH_XTENSA)
         # Xtensa is not natively supported by liboqs
         # We'll treat it as a generic embedded target

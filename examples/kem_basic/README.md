@@ -1,6 +1,6 @@
 # ML-KEM Basic Example
 
-This example demonstrates the basic usage of the ML-KEM (Key Encapsulation Mechanism) algorithm using the esp-idf-liboqs component.
+This example demonstrates the basic usage of the ML-KEM (Key Encapsulation Mechanism) algorithm using the esp-liboqs component.
 
 ## What This Example Does
 

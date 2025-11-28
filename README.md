@@ -23,7 +23,7 @@ Add to your project's `idf_component.yml`:
 
 ```yaml
 dependencies:
-  esp-idf-liboqs:
+  esp-liboqs:
     version: "^0.15.0"
 ```
 
@@ -31,7 +31,7 @@ dependencies:
 
 ```bash
 cd components
-git clone --recursive https://github.com/espressif/esp-idf-liboqs.git
+git clone --recursive https://github.com/espressif/esp-liboqs.git
 ```
 
 ### Basic Usage
@@ -166,6 +166,6 @@ This component is based on [liboqs](https://github.com/open-quantum-safe/liboqs)
 
 ## Support
 
-- Issues: https://github.com/espressif/esp-idf-liboqs/issues
+- Issues: https://github.com/espressif/esp-liboqs/issues
 - ESP-IDF Forum: https://esp32.com/
 - liboqs Discussions: https://github.com/open-quantum-safe/liboqs/discussions

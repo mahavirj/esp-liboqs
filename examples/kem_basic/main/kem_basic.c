@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 //
 // Basic ML-KEM example for ESP-IDF
-// Based on /home/esp/work/projects/liboqs/zephyr/samples/KEMs/src/main.c
+// Based on liboqs/zephyr/samples/KEMs/src/main.c
 
 #include <stdio.h>
 #include <string.h>

@@ -15,7 +15,7 @@ static const char *TAG = "liboqs_rng";
  * This function uses esp_fill_random() which provides cryptographically
  * secure random data from the hardware RNG on ESP32.
  *
- * Based on /home/esp/work/projects/liboqs/zephyr/samples/KEMs/src/main.c:24-28
+ * Based on liboqs/zephyr/samples/KEMs/src/main.c:24-28
  *
  * @param random_array  Buffer to fill with random bytes
  * @param bytes_to_read Number of bytes to generate
@@ -49,7 +49,7 @@ esp_err_t esp_liboqs_rng_init(void)
     ESP_LOGI(TAG, "Initializing liboqs with ESP32 hardware RNG");
 
     // Register our custom RNG callback with liboqs
-    // From /home/esp/work/projects/liboqs/src/common/rand/rand.c:58-59
+    // From liboqs/src/common/rand/rand.c:58-59
     OQS_randombytes_custom_algorithm(&esp_liboqs_randombytes);
 
     // Test the RNG with a small request to verify it works

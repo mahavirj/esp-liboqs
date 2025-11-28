@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 //
 // Basic ML-DSA Signature example for ESP-IDF
-// Based on /home/esp/work/projects/liboqs/zephyr/samples/Signatures/src/main.c
+// Based on liboqs/zephyr/samples/Signatures/src/main.c
 
 #include <stdio.h>
 #include <string.h>

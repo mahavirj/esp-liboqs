@@ -1,6 +1,6 @@
 # ML-DSA Signature Basic Example
 
-This example demonstrates the basic usage of post-quantum signature algorithms using the esp-idf-liboqs component.
+This example demonstrates the basic usage of post-quantum signature algorithms using the esp-liboqs component.
 
 ## What This Example Does
 
