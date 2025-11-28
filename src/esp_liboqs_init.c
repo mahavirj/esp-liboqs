@@ -80,3 +80,8 @@ void esp_liboqs_init(void)
 #endif // CONFIG_LIBOQS_AUTO_INIT_RNG
 #endif // CONFIG_LIBOQS_ENABLED
 }
+
+void esp_liboqs_init_include_impl(void)
+{
+    // Linker hook, exists for no other purpose
+}

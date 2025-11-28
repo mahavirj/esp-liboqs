@@ -8,6 +8,8 @@ idf_component_register(
     PRIV_REQUIRES esp_system
 )
 
+target_link_libraries(${COMPONENT_LIB} PRIVATE "-u esp_liboqs_init_include_impl")
+
 # Only build liboqs if enabled in Kconfig
 if(CONFIG_LIBOQS_ENABLED)
 

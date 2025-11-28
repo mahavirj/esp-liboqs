@@ -113,6 +113,7 @@ static void test_kem(const char *alg_name)
 
     uint32_t free_heap = esp_get_free_heap_size();
     ESP_LOGI(TAG, "Free heap: %lu bytes (%.1f KB)", free_heap, free_heap / 1024.0);
+    ESP_LOGI(TAG, "Free Stack for main task: '%d'", uxTaskGetStackHighWaterMark(NULL));
 
 cleanup:
     // Securely free sensitive data

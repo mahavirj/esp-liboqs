@@ -158,12 +158,6 @@ MIT License - See [LICENSE](LICENSE) file for details.
 
 This component is based on [liboqs](https://github.com/open-quantum-safe/liboqs) by the Open Quantum Safe project.
 
-## Related Projects
-
-- [liboqs](https://github.com/open-quantum-safe/liboqs) - Open Quantum Safe liboqs C library
-- [liboqs Zephyr port](https://github.com/open-quantum-safe/liboqs/tree/main/zephyr) - Zephyr RTOS integration
-- [ESP-IDF](https://github.com/espressif/esp-idf) - Espressif IoT Development Framework
-
 ## Support
 
 - Issues: https://github.com/espressif/esp-liboqs/issues
