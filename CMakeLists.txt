@@ -167,6 +167,30 @@ if(CONFIG_LIBOQS_ENABLED)
     # Add the actual liboqs targets (from Zephyr line 157)
     add_subdirectory(liboqs liboqs_build EXCLUDE_FROM_ALL)
 
+    # Disable position independent code for ALL liboqs targets recursively (Zephyr approach line 188-189)
+    # Must be done AFTER add_subdirectory to apply to all targets created by liboqs
+    # This function recursively finds all targets in liboqs subdirectories and disables PIC
+    function(disable_pic_for_all_targets dir)
+        get_directory_property(subdirs DIRECTORY ${dir} SUBDIRECTORIES)
+        foreach(subdir ${subdirs})
+            disable_pic_for_all_targets(${subdir})
+        endforeach()
+
+        get_directory_property(targets DIRECTORY ${dir} BUILDSYSTEM_TARGETS)
+        foreach(target ${targets})
+            if(TARGET ${target})
+                get_target_property(target_type ${target} TYPE)
+                # Only set properties on compilable targets (not UTILITY targets)
+                if(NOT target_type STREQUAL "UTILITY")
+                    set_target_properties(${target} PROPERTIES POSITION_INDEPENDENT_CODE OFF)
+                    target_compile_options(${target} PRIVATE -fno-pic)
+                endif()
+            endif()
+        endforeach()
+    endfunction()
+
+    disable_pic_for_all_targets(liboqs)
+
     # Restore install() and export() commands
     macro(install)
         _install(${ARGV})
