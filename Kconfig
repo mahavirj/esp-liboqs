@@ -1,0 +1,223 @@
+# SPDX-License-Identifier: MIT
+
+menu "liboqs Post-Quantum Cryptography"
+
+    config LIBOQS_ENABLED
+        bool "Enable liboqs library"
+        default y
+        help
+            Enable the liboqs post-quantum cryptography library.
+            Provides Key Encapsulation Mechanisms (KEMs), Digital Signatures,
+            and Stateful Signatures.
+
+            This library implements NIST-standardized algorithms (ML-KEM, ML-DSA)
+            and other quantum-safe cryptographic algorithms.
+
+    menu "Algorithm Selection"
+        depends on LIBOQS_ENABLED
+
+        comment "Key Encapsulation Mechanisms (KEMs)"
+
+        config LIBOQS_ENABLE_KEM_ML_KEM
+            bool "Enable ML-KEM (NIST FIPS 203)"
+            default y
+            help
+                Enable ML-KEM (formerly CRYSTALS-Kyber) - NIST standardized KEM.
+
+                ML-KEM is a lattice-based key encapsulation mechanism standardized
+                by NIST in FIPS 203. Recommended for most applications.
+
+                Variants: ML-KEM-512, ML-KEM-768, ML-KEM-1024
+
+        config LIBOQS_ENABLE_KEM_BIKE
+            bool "Enable BIKE KEM"
+            default n
+            help
+                BIKE (Bit Flipping Key Encapsulation) - Code-based KEM
+
+        config LIBOQS_ENABLE_KEM_FRODOKEM
+            bool "Enable FrodoKEM"
+            default n
+            help
+                FrodoKEM - Conservative lattice-based KEM.
+                Higher memory requirements than ML-KEM.
+
+        config LIBOQS_ENABLE_KEM_NTRUPRIME
+            bool "Enable NTRU Prime"
+            default n
+            help
+                NTRU Prime - Lattice-based KEM family
+
+        config LIBOQS_ENABLE_KEM_CLASSIC_MCELIECE
+            bool "Enable Classic McEliece"
+            default n
+            help
+                Classic McEliece - Code-based KEM with very large keys.
+                Not recommended for ESP32 due to memory constraints.
+
+        config LIBOQS_ENABLE_KEM_HQC
+            bool "Enable HQC"
+            default n
+            help
+                HQC (Hamming Quasi-Cyclic) - Code-based KEM
+
+        config LIBOQS_ENABLE_KEM_KYBER
+            bool "Enable Kyber (NIST Round 3)"
+            default n
+            help
+                Original Kyber from NIST Round 3 (pre-standardization).
+                Consider using ML-KEM instead for the standardized version.
+
+        comment "Digital Signature Schemes"
+
+        config LIBOQS_ENABLE_SIG_ML_DSA
+            bool "Enable ML-DSA (NIST FIPS 204)"
+            default y
+            help
+                Enable ML-DSA (formerly CRYSTALS-Dilithium) - NIST standardized signature.
+
+                ML-DSA is a lattice-based signature scheme standardized by NIST
+                in FIPS 204. Recommended for most applications.
+
+                Variants: ML-DSA-44, ML-DSA-65, ML-DSA-87
+
+        config LIBOQS_ENABLE_SIG_FALCON
+            bool "Enable FALCON"
+            default y
+            help
+                FALCON - Lattice-based signature scheme selected for NIST standardization.
+
+                Compact signatures but requires more stack space for key generation.
+
+        config LIBOQS_ENABLE_SIG_SPHINCS
+            bool "Enable SPHINCS+"
+            default y
+            help
+                SPHINCS+ - Hash-based signature scheme (basis for SLH-DSA).
+
+                Stateless hash-based signatures with conservative security assumptions.
+
+        config LIBOQS_ENABLE_SIG_MAYO
+            bool "Enable MAYO"
+            default y
+            help
+                MAYO - Multivariate signature scheme.
+
+                Note: MAYO-5 variant is disabled to reduce size.
+
+        config LIBOQS_ENABLE_SIG_CROSS
+            bool "Enable CROSS"
+            default y
+            help
+                CROSS - Code-based signature scheme.
+
+                Note: Some variants with large stack usage are automatically disabled
+                for ESP32 memory constraints.
+
+        config LIBOQS_ENABLE_SIG_UOV
+            bool "Enable UOV"
+            default n
+            help
+                UOV (Unbalanced Oil and Vinegar) - Multivariate signature scheme
+
+        config LIBOQS_ENABLE_SIG_SNOVA
+            bool "Enable SNOVA"
+            default y
+            help
+                SNOVA - Multivariate signature scheme.
+
+                Note: Large variants are automatically disabled for ESP32.
+
+    endmenu
+
+    menu "Memory Configuration"
+        depends on LIBOQS_ENABLED
+
+        config LIBOQS_TASK_STACK_SIZE
+            int "Recommended task stack size for crypto operations (bytes)"
+            default 16384
+            range 4096 131072
+            help
+                Recommended stack size for tasks performing cryptographic operations.
+
+                - ML-KEM-768: ~8-16 KB
+                - ML-DSA-65: ~8-16 KB
+                - FALCON-512: ~32-64 KB
+
+                Set your task stack size via CONFIG_ESP_MAIN_TASK_STACK_SIZE
+                or when creating FreeRTOS tasks.
+
+        config LIBOQS_HEAP_SIZE_WARNING_KB
+            int "Warn if free heap below this threshold (KB)"
+            default 50
+            range 10 512
+            help
+                Log a warning during initialization if free heap falls below
+                this threshold. Helps detect potential out-of-memory conditions.
+
+        choice LIBOQS_MEMORY_PROFILE
+            prompt "Memory profile for algorithm selection"
+            default LIBOQS_MEMORY_BALANCED
+            help
+                Pre-configured memory profiles for different ESP32 variants.
+                This is informational - actual algorithm selection is done above.
+
+            config LIBOQS_MEMORY_MINIMAL
+                bool "Minimal (for ESP32-C2)"
+                help
+                    Recommended for ESP32-C2 (~272 KB SRAM):
+                    - ML-KEM-512
+                    - ML-DSA-44
+
+            config LIBOQS_MEMORY_BALANCED
+                bool "Balanced (ESP32/S2/C3)"
+                help
+                    Recommended for ESP32, ESP32-S2, ESP32-C3 (~320-400 KB SRAM):
+                    - ML-KEM-768
+                    - ML-DSA-65
+                    - FALCON-512
+                    - SPHINCS+-128s
+
+            config LIBOQS_MEMORY_FULL
+                bool "Full (ESP32-S3/C6/H2/P4)"
+                help
+                    Recommended for ESP32-S3, C6, H2, P4 (~512 KB SRAM):
+                    - All enabled algorithms
+                    - PSRAM support recommended
+        endchoice
+
+    endmenu
+
+    menu "Advanced Options"
+        depends on LIBOQS_ENABLED
+
+        config LIBOQS_AUTO_INIT_RNG
+            bool "Automatically initialize RNG callback"
+            default y
+            help
+                Automatically call OQS_randombytes_custom_algorithm() at startup
+                using ESP-IDF's hardware RNG (esp_fill_random).
+
+                If disabled, you must manually call esp_liboqs_rng_init() before
+                using any liboqs cryptographic operations.
+
+        config LIBOQS_USE_ESP_RANDOM
+            bool "Use esp_fill_random() for RNG"
+            default y
+            depends on LIBOQS_AUTO_INIT_RNG
+            help
+                Use ESP-IDF's hardware random number generator.
+
+                esp_fill_random() uses the hardware RNG and is cryptographically
+                secure. This is the recommended option for production use.
+
+        config LIBOQS_VERBOSE_LOGGING
+            bool "Enable verbose logging"
+            default n
+            help
+                Enable detailed logging of liboqs operations.
+                Useful for debugging but increases code size.
+
+    endmenu
+
+endmenu
