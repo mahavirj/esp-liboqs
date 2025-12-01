@@ -38,6 +38,9 @@ static void test_kem(const char *alg_name)
     ESP_LOGI(TAG, "Testing KEM: %s", alg_name);
     ESP_LOGI(TAG, "========================================");
 
+    // Track statistics - start
+    uint32_t initial_min_heap = esp_get_minimum_free_heap_size();
+
     // Create KEM instance
     OQS_KEM *kem = OQS_KEM_new(alg_name);
     if (kem == NULL) {
@@ -105,15 +108,27 @@ static void test_kem(const char *alg_name)
         ESP_LOGE(TAG, "  ✗ FAILURE: Shared secrets do not match!");
     }
 
-    ESP_LOGI(TAG, "Performance summary:");
-    ESP_LOGI(TAG, "  Keypair:    %lu ms", keypair_time);
-    ESP_LOGI(TAG, "  Encaps:     %lu ms", encaps_time);
-    ESP_LOGI(TAG, "  Decaps:     %lu ms", decaps_time);
-    ESP_LOGI(TAG, "  Total:      %lu ms", keypair_time + encaps_time + decaps_time);
+    // Collect final statistics
+    uint32_t final_min_heap = esp_get_minimum_free_heap_size();
+    uint32_t stack_high_water = uxTaskGetStackHighWaterMark(NULL);
 
-    uint32_t free_heap = esp_get_free_heap_size();
-    ESP_LOGI(TAG, "Free heap: %lu bytes (%.1f KB)", free_heap, free_heap / 1024.0);
-    ESP_LOGI(TAG, "Free Stack for main task: '%d'", uxTaskGetStackHighWaterMark(NULL));
+    // Calculate statistics
+    uint32_t min_heap_used = initial_min_heap - final_min_heap;
+    uint32_t stack_size = 20480;  // Total stack allocated
+    uint32_t stack_used = stack_size - stack_high_water;
+
+    // Display statistics table
+    ESP_LOGI(TAG, "");
+    ESP_LOGI(TAG, "Task Statistics:");
+    ESP_LOGI(TAG, "+------------------+------------+");
+    ESP_LOGI(TAG, "| Metric           | Value      |");
+    ESP_LOGI(TAG, "+------------------+------------+");
+    ESP_LOGI(TAG, "| Keypair time     | %6lu ms |", keypair_time);
+    ESP_LOGI(TAG, "| Encaps time      | %6lu ms |", encaps_time);
+    ESP_LOGI(TAG, "| Decaps time      | %6lu ms |", decaps_time);
+    ESP_LOGI(TAG, "| Stack used       | %5lu B  |", stack_used);
+    ESP_LOGI(TAG, "| Heap used        | %5lu B  |", min_heap_used);
+    ESP_LOGI(TAG, "+------------------+------------+");
 
 cleanup:
     // Securely free sensitive data
@@ -139,23 +154,12 @@ cleanup:
     ESP_LOGI(TAG, "");
 }
 
-void app_main(void)
+/**
+ * @brief Task that runs KEM tests
+ */
+static void kem_test_task(void *pvParameters)
 {
-    ESP_LOGI(TAG, "========================================");
-    ESP_LOGI(TAG, "liboqs KEM Example for ESP-IDF");
-    ESP_LOGI(TAG, "========================================");
-    ESP_LOGI(TAG, "liboqs version: %s", OQS_version());
-    ESP_LOGI(TAG, "Chip: %s", CONFIG_IDF_TARGET);
-    ESP_LOGI(TAG, "");
-
-    uint32_t initial_heap = esp_get_free_heap_size();
-    ESP_LOGI(TAG, "Initial free heap: %lu bytes (%.1f KB)",
-             initial_heap, initial_heap / 1024.0);
-    ESP_LOGI(TAG, "");
-
-    // Note: If CONFIG_LIBOQS_AUTO_INIT_RNG=y, RNG is already initialized
-    // Otherwise, you must call esp_liboqs_rng_init() here
-
+    ESP_LOGI(TAG, "KEM test task started");
     ESP_LOGI(TAG, "Total KEM algorithms available: %zu", OQS_KEM_alg_count());
     ESP_LOGI(TAG, "");
 
@@ -182,12 +186,37 @@ void app_main(void)
     ESP_LOGI(TAG, "Example complete!");
     ESP_LOGI(TAG, "========================================");
 
-    uint32_t final_heap = esp_get_free_heap_size();
-    ESP_LOGI(TAG, "Final free heap: %lu bytes (%.1f KB)",
-             final_heap, final_heap / 1024.0);
+    ESP_LOGI(TAG, "KEM test task completed, deleting task");
+    vTaskDelete(NULL);
+}
 
-    if (final_heap < initial_heap) {
-        ESP_LOGW(TAG, "Heap decreased by %lu bytes during execution",
-                 initial_heap - final_heap);
+void app_main(void)
+{
+    ESP_LOGI(TAG, "========================================");
+    ESP_LOGI(TAG, "liboqs KEM Example for ESP-IDF");
+    ESP_LOGI(TAG, "========================================");
+    ESP_LOGI(TAG, "liboqs version: %s", OQS_version());
+    ESP_LOGI(TAG, "Chip: %s", CONFIG_IDF_TARGET);
+    ESP_LOGI(TAG, "");
+
+    // Note: If CONFIG_LIBOQS_AUTO_INIT_RNG=y, RNG is already initialized
+    // Otherwise, you must call esp_liboqs_rng_init() here
+
+    // Create independent task for KEM testing
+    TaskHandle_t kem_task_handle = NULL;
+    BaseType_t result = xTaskCreate(
+        kem_test_task,           // Task function
+        "kem_test",              // Task name
+        20480,                   // Stack size (bytes)
+        NULL,                    // Parameters
+        5,                       // Priority
+        &kem_task_handle         // Task handle
+    );
+
+    if (result != pdPASS) {
+        ESP_LOGE(TAG, "Failed to create KEM test task");
+        return;
     }
+
+    ESP_LOGI(TAG, "KEM test task created successfully");
 }
