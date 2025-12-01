@@ -86,13 +86,13 @@ idf.py menuconfig
 
 ## Memory Requirements
 
-- Stack: 16 KB (configured in sdkconfig.defaults)
+- Stack: 80 KB (configured in sdkconfig.defaults for ML-DSA-65)
 - Heap: Varies by algorithm
-  - ML-DSA-44: ~8 KB
-  - ML-DSA-65: ~10 KB
-  - ML-DSA-87: ~14 KB
-  - Falcon-512: ~10 KB
-  - Falcon-1024: ~15 KB
+  - ML-DSA-44: ~9 KB
+  - ML-DSA-65: ~13 KB
+  - ML-DSA-87: ~18 KB
+  - Falcon-512: ~8 KB
+  - Falcon-1024: ~12 KB
 - Flash: Approximately 150-250 KB depending on enabled algorithms
 
 ## Supported Targets

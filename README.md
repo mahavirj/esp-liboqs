@@ -76,20 +76,27 @@ Default enabled algorithms:
 - ML-DSA (Digital Signatures)
 - FALCON, SPHINCS+, MAYO, CROSS, SNOVA (Signatures)
 
-## Supported ESP32 Variants
+## Performance Benchmarks
 
-| Chip | Architecture | SRAM | Recommended Profile |
-|------|--------------|------|---------------------|
-| ESP32-C2 | RISC-V | ~272 KB | Minimal (ML-KEM-512, ML-DSA-44) |
-| ESP32 | Xtensa | ~320 KB | Balanced (ML-KEM-768, ML-DSA-65) |
-| ESP32-S2 | Xtensa | ~320 KB | Balanced |
-| ESP32-C3 | RISC-V | ~400 KB | Balanced |
-| ESP32-S3 | Xtensa | ~512 KB | Full (all algorithms) |
-| ESP32-C6 | RISC-V | ~512 KB | Full (best performance) |
-| ESP32-H2 | RISC-V | ~512 KB | Full |
-| ESP32-P4 | RISC-V | ~512 KB | Full |
+Performance measured on ESP32-C5 @ 240 MHz (RISC-V):
 
-**Note**: Xtensa variants (ESP32/S2/S3) use reference implementations. RISC-V variants (C2/C3/C6/H2/P4) can use optimized code.
+### ML-KEM (Key Encapsulation)
+
+| Algorithm | Keypair | Encaps | Decaps | Stack Used | Heap Used |
+|-----------|---------|--------|--------|------------|-----------|
+| ML-KEM-512 | ~95 ms | ~95 ms | ~115 ms | ~14 KB | ~4 KB |
+| ML-KEM-768 | ~148 ms | ~148 ms | ~178 ms | ~17 KB | ~6 KB |
+| ML-KEM-1024 | ~230 ms | ~230 ms | ~275 ms | ~21 KB | ~8 KB |
+
+### ML-DSA (Digital Signatures)
+
+| Algorithm | Keypair | Sign | Verify | Stack Used | Heap Used |
+|-----------|---------|------|--------|------------|-----------|
+| ML-DSA-44 | ~395 ms | ~415 ms | ~370 ms | ~55 KB | ~9 KB |
+| ML-DSA-65 | ~623 ms | ~625 ms | ~581 ms | ~78 KB | ~13 KB |
+| ML-DSA-87 | ~975 ms | ~1025 ms | ~915 ms | ~110 KB | ~18 KB |
+
+*Note: Performance varies by chip architecture and clock speed.
 
 ## Examples
 
@@ -97,35 +104,12 @@ See the `examples/` directory for complete examples:
 
 - `kem_basic`: Basic key encapsulation mechanism demonstration
 - `signature_basic`: Digital signature demonstration
-- `ml_kem_demo`: ML-KEM-768 specific example
-- `ml_dsa_demo`: ML-DSA-65 specific example
-
-## Memory Requirements
-
-Typical stack requirements:
-- ML-KEM-768: ~8-16 KB
-- ML-DSA-65: ~8-16 KB
-- FALCON-512: ~32-64 KB
-
-Configure stack size in your project's `sdkconfig.defaults`:
-```
-CONFIG_ESP_MAIN_TASK_STACK_SIZE=16384
-```
-
-For more details, see [docs/memory_requirements.md](docs/memory_requirements.md).
 
 ## ESP-IDF Compatibility
 
 - **Minimum**: ESP-IDF v4.4
 - **Recommended**: ESP-IDF v5.0+
 - **Tested**: ESP-IDF v6.1-dev
-
-## Documentation
-
-- [Installation Guide](docs/installation.md)
-- [Configuration Guide](docs/configuration.md)
-- [Memory Requirements](docs/memory_requirements.md)
-- [Algorithm Support](docs/algorithm_support.md)
 
 ## Architecture Notes
 
@@ -157,9 +141,3 @@ Contributions are welcome! Please:
 MIT License - See [LICENSE](LICENSE) file for details.
 
 This component is based on [liboqs](https://github.com/open-quantum-safe/liboqs) by the Open Quantum Safe project.
-
-## Support
-
-- Issues: https://github.com/espressif/esp-liboqs/issues
-- ESP-IDF Forum: https://esp32.com/
-- liboqs Discussions: https://github.com/open-quantum-safe/liboqs/discussions

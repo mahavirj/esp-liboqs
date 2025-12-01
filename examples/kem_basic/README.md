@@ -75,8 +75,8 @@ idf.py menuconfig
 
 ## Memory Requirements
 
-- Stack: 16 KB (configured in sdkconfig.defaults)
-- Heap: Varies by algorithm, ML-KEM-768 uses ~5-10 KB during operation
+- Stack: 20 KB (configured in sdkconfig.defaults)
+- Heap: Varies by algorithm, ML-KEM-768 uses ~8-12 KB during operation
 - Flash: Approximately 100-200 KB for ML-KEM-768
 
 ## Supported Targets
